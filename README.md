@@ -1,5 +1,7 @@
 # SmarkDown
 
+A pure Swift [markdown](http://daringfireball.net/projects/markdown/) implementation consistent with Gruber's 1.0.1 implement version. 
+
 BSD. Use at your own risk, pull requests **very** welcome
 
 ## Use
