@@ -10,7 +10,7 @@ There are two ways to use it, it provides an extension to String so you can simp
 
 or you can explicitly create an instance (which will have some minor performance improvements for repeated calls
 
-   let smarkDown = SmarkDown()
-   print(smarkDown.markdown(myString))
+    let smarkDown = SmarkDown()
+    print(smarkDown.markdown(myString))
 
 That's all for now. More to come. 
