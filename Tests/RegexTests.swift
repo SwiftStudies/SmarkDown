@@ -2,7 +2,6 @@
 //  InternalTests.swift
 //  SmarkDown
 //
-//  Created by Nigel Hughes on 10/03/2016.
 //  Copyright © 2016 Swift Studies. All rights reserved.
 //
 
