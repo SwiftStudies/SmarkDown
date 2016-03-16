@@ -15,7 +15,29 @@ However, I would next like to achieve two things
 
 Once again, I would ***love*** to receive pull requests towards this goal. 
 
-## Use
+## Building and Running with Swift Package Manager
+
+###Install Swift toolchain if you don't already have it
+
+If you don't already have the latest Swift tool-chain it, it's not a huge download for the binary (<200Mb), it **doesn't** impact or need anything specific from XCode (unless you want to integrate them), and it comes with an installer. You can [download it here](https://swift.org/download/).
+
+Once you've done that all you will need to do is open a terminal window, make sure the latest tool-chain is in your path
+
+	export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
+	
+Change to the SmarkDown package directory (where you can see this readme and the Sources, Tests, and Data directories for example).
+
+### Building and running
+
+There are two modules in the package `SmarkDown` is the library you can use in your own projects, and the second is a command line tool `markdown` which takes a single parameter (which should be a .md markdown file) and outputs the resultant html. You can do a quick test with 
+
+	swift build
+	.build/debug/markdown README.md
+	
+You should see the HTML version of the read me! As a side note, you have to love Swift Package Manager... it is so very easy to use and get going with!
+
+## Use in your code
+
 There are two ways to use it, it provides an extension to String so you can simply do
 
     let myString = "# Cool\n\nThis markdown'd\n"
