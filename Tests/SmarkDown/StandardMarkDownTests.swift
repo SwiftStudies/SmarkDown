@@ -27,10 +27,23 @@ class SmarkDownTests: XCTestCase {
     
     func doFileTest(fileName:String){
         let bundle = NSBundle(forClass: self.dynamicType)
+
+        let inputFileName  : String
+        let outputFileName : String
         
-        let inputFileName = bundle.pathForResource(fileName, ofType: "text")!
-        let outputFileName = bundle.pathForResource(fileName, ofType: "html")!
+        if let fromBundle = bundle.pathForResource(fileName, ofType: "text"){
+            inputFileName = fromBundle
+        } else {
+            inputFileName = "./Data/\(fileName).text"
+        }
+
+        if let fromBundle = bundle.pathForResource(fileName, ofType: "html"){
+            outputFileName = fromBundle
+        } else {
+            outputFileName = "./Data/\(fileName).html"
+        }
         
+                
         do {
             let input = try NSString(contentsOfFile: inputFileName, encoding: NSUTF8StringEncoding) as String
             let expectedOutput = try NSString(contentsOfFile: outputFileName, encoding: NSUTF8StringEncoding) as String
