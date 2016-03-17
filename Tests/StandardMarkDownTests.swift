@@ -110,8 +110,8 @@ class SmarkDownTests: XCTestCase {
         
     }
     
-    func testMarkdownDocumentationSyntax(){
-        doFileTest("Markdown Documentation - Syntax")
+    func testMarkdownDocumentationSyntax(){ 
+        doFileTest("Markdown Documentation - Syntax") 
         
     }
     

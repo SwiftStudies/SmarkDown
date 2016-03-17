@@ -112,8 +112,8 @@ class InternalTests: XCTestCase {
     
     func testBlockQuotes(){
         let input       = "> foo\n> foo\n"
-        let expected    = "<blockquote>\n  <p>foo\n  foo</p>\n</blockquote>\n\n"
-        let result      = doBlockQuotes(input)
+        let expected    = "<blockquote>\n  <p>foo\n  foo</p>\n</blockquote>\n"
+        let result      = input.markdown
         
         XCTAssert(result == expected, "Failed for '\(input.exposedWhiteSpace)':\n'\(expected.exposedWhiteSpace)' but got \n'\(result.exposedWhiteSpace)'")
     }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Duration
 
 public extension String{
     var markdown : String {
@@ -32,6 +33,9 @@ public class SmarkDown {
     }
     
     public func markdown(text:String)->String{
+        
+        Duration.pushLogStyle(.None)
+        
         var text = text
         
         //Clear hashes
@@ -62,6 +66,8 @@ public class SmarkDown {
         
         text = unescapeSpecialCharacters(text)
         
+        Duration.popLogStyle()
+        
         return "\(text)\n"
     }
 
@@ -91,6 +97,8 @@ public class SmarkDown {
         //The lazy matches in the above pattern seem to break it
         pattern = "^[ ]{0,\(lessThanTab)}\\[(.+)\\]:[ \\t]*\\n?[ \\t]*<?(\\S+)>?[ \\t]*\\n?[ \\t]*(?:(?<=\\s)[\"(](.+)[\")][ \\t]*)?(?:\\n+|\\Z)"
         
+        
+        //TODO: Could just be a match, although will be a small gain
         return replacePatternMatchesWithBlock(text, pattern: pattern, multiline: true){
             (match)->String in
             
@@ -172,11 +180,14 @@ public class SmarkDown {
         
         text = replacePatternMatchesWithBlock(text, pattern: "^(.+)[ \\t]*\\n=+[ \\t]*\\n+", multiline: true){
             (match)->String in
+            
+//            return self.hashHtml("<h1>\(self.runSpanGamut(match[1]))</h1>")+"\n\n"
             return "<h1>\(self.runSpanGamut(match[1]))</h1>\n\n"
         }
         
         text = replacePatternMatchesWithBlock(text, pattern: "^(.+)[ \\t]*\\n-+[ \\t]*\\n+", multiline: true){
             (match)->String in
+//            return self.hashHtml("<h2>\(self.runSpanGamut(match[1]))</h1>")+"\n\n"
             return "<h2>\(self.runSpanGamut(match[1]))</h2>\n\n"
         }
         
@@ -186,6 +197,7 @@ public class SmarkDown {
             let headerDashes : String = match[1]
             let headerLevel = headerDashes.characters.count
             
+//            return self.hashHtml("<h\(headerLevel)>\(self.runSpanGamut(match[2]))</h\(headerLevel)>")+"\n\n"
             return "<h\(headerLevel)>\(self.runSpanGamut(match[2]))</h\(headerLevel)>\n\n"
         }
         
@@ -569,7 +581,8 @@ public class SmarkDown {
             codeBlock = regexSub(codeBlock, pattern: "\\A\\n+", template: "")
             codeBlock = regexSub(codeBlock, pattern: "\\s+\\z", template: "")
             
-            return "\n\n<pre><code>\(codeBlock)\n</code></pre>\n\n"
+            return "\n\n"+self.hashHtml("<pre><code>\(codeBlock)\n</code></pre>")+"\n\n"
+//            return "\n\n<pre><code>\(codeBlock)\n</code></pre>\n\n"
         }
         
         return text
@@ -605,7 +618,8 @@ public class SmarkDown {
                 return removedSpaces
             }
             
-            return "<blockquote>\n\(bq)\n</blockquote>\n\n"
+            return self.hashHtml("<blockquote>\n\(bq)\n</blockquote>")+"\n\n"
+//            return "<blockquote>\n\(bq)\n</blockquote>\n\n"
         }
         
         return text
@@ -673,12 +687,17 @@ public class SmarkDown {
     internal func hashHTMLBlocks(text:String)->String{
         
         func codeLine(text:String, matchStart:String.Index)->Bool{
+//            Duration.startMeasurement("Code test")
             var lineStart = matchStart
             
             var inlineBlock = false
             
+            var scanDepth = 0
+            
             //Scan back to the new line
             while text.characters[lineStart] != "\n"{
+                scanDepth += 1
+                
                 if lineStart == text.startIndex {
                     break
                 }
@@ -686,6 +705,7 @@ public class SmarkDown {
                 lineStart = lineStart.predecessor()
                 if inlineBlock {
                     if text.characters[lineStart] != "\\"{
+//                        Duration.stopMeasurement("inline code-block (\(scanDepth))")
                         return true
                     }
                 } else if text.characters[lineStart] == "`" {
@@ -699,13 +719,16 @@ public class SmarkDown {
             }
             
             if linePrefix.hasPrefix("    "){
+//                Duration.stopMeasurement("code-block (\(scanDepth))")
                 return true
             }
             
             if linePrefix.hasPrefix("\t"){
+//                Duration.stopMeasurement("code-block (\(scanDepth))")
                 return true
             }
             
+//            Duration.stopMeasurement("not code")
             return false
         }
         
@@ -722,15 +745,29 @@ public class SmarkDown {
         
         var expensiveTags = 0
         var reallyExpensiveTags = 0
+        var totalTags = 0
         
+        var textPos = 0
+        var textIndex = text.startIndex
+        
+        Duration.startMeasurement("hashHTML")
+        
+        Duration.startMeasurement("Finding tags")
         matchesWithBlock(text, pattern: pattern, multiline: false, dotMatchesNewLines: true){
             (tagMatch) in
             
+            totalTags += 1
             
-            if !codeLine(text, matchStart: text.startIndex.advancedBy(tagMatch.nsResult.range.location)){
+            textIndex = textIndex.advancedBy(tagMatch.nsResult.range.location - textPos)
+            textPos = tagMatch.nsResult.range.location
+            
+            var matchType = "Code Line"
+            Duration.startMeasurement("Match")
+            if !codeLine(text, matchStart: textIndex){
                 //It's a comment
                 if tagMatch[5] {
                     blocks.append(HTMLBlock.Block(range: tagMatch[0]))
+                    Duration.stopMeasurement("Comment")
                     return
                 }
                 
@@ -739,6 +776,7 @@ public class SmarkDown {
                 //Is this a single element (open and close)
                 if depth == 0 && !close && tagMatch[4] {
                     blocks.append(HTMLBlock.Block(range:tagMatch[0]))
+                    Duration.stopMeasurement("Open/Close")
                     return
                 }
 
@@ -749,6 +787,7 @@ public class SmarkDown {
                 //Special case for hr
                 if depth == 0 && tag == "hr" {
                     blocks.append(HTMLBlock.Block(range:tagMatch[0]))
+                    Duration.stopMeasurement("hr")
                     return
                 }
                                 
@@ -780,14 +819,19 @@ public class SmarkDown {
                     depth += 1
                 }
 
+                matchType="\(tag)"
+                
             }
+            Duration.stopMeasurement(matchType)
             
             return
         }
+        Duration.stopMeasurement()
         
         var pos = text.startIndex
         var result = ""
         
+        Duration.startMeasurement("Adding hashes")
         for block in blocks {
             switch block {
             case .Block(let blockRange):
@@ -812,8 +856,9 @@ public class SmarkDown {
         if pos < text.endIndex{
             result += text.substringWithRange(pos..<text.endIndex)
         }
+        Duration.stopMeasurement()
         
-//        print("Hashed html expensive tags = \(expensiveTags) of which \(reallyExpensiveTags) were really expensive")
+        Duration.stopMeasurement("Tags \(totalTags)\\\(expensiveTags)\\\(reallyExpensiveTags)")
         
         return result
     }

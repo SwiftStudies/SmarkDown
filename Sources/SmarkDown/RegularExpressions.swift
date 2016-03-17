@@ -45,10 +45,14 @@ internal func buildRegex(pattern:String, multiline:Bool, dotMatchesNewlines:Bool
 internal class RegexMatchResult : CustomStringConvertible{
     let nsResult : NSTextCheckingResult
     let string   : String
+    let startPos : Int
+    let startIndex : String.Index
     
-    init(nsResult:NSTextCheckingResult, forString:String){
+    init(nsResult:NSTextCheckingResult, forString:String, startPos:Int, startIndex:String.Index){
         self.nsResult = nsResult
         self.string = forString
+        self.startPos = startPos
+        self.startIndex = startIndex
     }
     
     var range : Range<String.Index>{
@@ -70,11 +74,19 @@ internal class RegexMatchResult : CustomStringConvertible{
     }
     
     subscript(group:Int)->Range<String.Index>{
-        return string.rangeFromNSRange(nsResult.rangeAtIndex(group))
+        let nsRange = nsResult.rangeAtIndex(group)
+        
+        let delta = nsRange.location - startPos
+        
+        let groupStart = startIndex.advancedBy(delta)
+        
+        return groupStart..<groupStart.advancedBy(nsRange.length)
+//        return string.rangeFromNSRange(nsResult.rangeAtIndex(group))
     }
     
     subscript(group:Int)->String{
-        return string.substringWithNSRange(nsResult.rangeAtIndex(group))
+        return string.substringWithRange(self[group])
+//        return string.substringWithNSRange(nsResult.rangeAtIndex(group))
     }
     
     var description : String {
@@ -110,26 +122,38 @@ internal func replacePatternMatchesWithBlock(text:String,pattern:String,multilin
         return text
     }
     
-    var lastMatchEnd = 0;
+//    var lastMatchEnd =   0;
+    var lastMatchIndex = text.startIndex;
+
+    var     watermarkPos    = 0
+    var     watermarkIndex  = text.startIndex
+
     var result = ""
     
     regex.enumerateMatchesInString(text,
         options: NSMatchingOptions(), range: NSMakeRange(0,text.characters.count)) { (textCheckingResult, matchingFlags, stop) -> Void in
             if let textCheckingResult = textCheckingResult {
+                watermarkIndex = watermarkIndex.advancedBy(textCheckingResult.range.location - watermarkPos)
+                watermarkPos   = textCheckingResult.range.location
+                
+                
                 //Add anything in the result that's been skipped before this match
-                let matchStartDelta = textCheckingResult.range.location - lastMatchEnd
-                result += text.substringWithNSRange(NSRange(location:lastMatchEnd, length:matchStartDelta))
+//                let matchStartDelta = textCheckingResult.range.location - lastMatchEnd
+                result += text.substringWithRange(lastMatchIndex..<watermarkIndex)
+//                result += text.substringWithNSRange(NSRange(location:lastMatchEnd, length:matchStartDelta))
                 
                 //Now apply the template
-                result += block(RegexMatchResult(nsResult: textCheckingResult, forString: text))
+                result += block(RegexMatchResult(nsResult: textCheckingResult, forString: text, startPos: watermarkPos, startIndex: watermarkIndex))
                 
                 //And advance the last match end
-                lastMatchEnd = textCheckingResult.range.location+textCheckingResult.range.length
+//                lastMatchEnd = textCheckingResult.range.location+textCheckingResult.range.length
+                lastMatchIndex = watermarkIndex.advancedBy(textCheckingResult.range.length)
             }
     }
     
     //Add anything missed since the end of the last match
-    result += text.substringWithNSRange(NSRange(location: lastMatchEnd,length: text.characters.count - lastMatchEnd))
+//    result += text.substringWithNSRange(NSRange(location: lastMatchEnd,length: text.characters.count - lastMatchEnd))
+    result += text.substringWithRange(lastMatchIndex..<text.endIndex)
     
     return result
 }
@@ -148,10 +172,17 @@ internal func matchesWithBlock(text:String,pattern:String,multiline:Bool, dotMat
         return
     }
     
+    var     watermarkPos    = 0
+    var     watermarkIndex  = text.startIndex
+    
     regex.enumerateMatchesInString(text,
         options: NSMatchingOptions(), range: NSMakeRange(0,text.characters.count)) { (textCheckingResult, matchingFlags, stop) -> Void in
             if let textCheckingResult = textCheckingResult {
-                block(RegexMatchResult(nsResult: textCheckingResult, forString: text))
+                
+                watermarkIndex = watermarkIndex.advancedBy(textCheckingResult.range.location - watermarkPos)
+                watermarkPos   = textCheckingResult.range.location
+                
+                block(RegexMatchResult(nsResult: textCheckingResult, forString: text, startPos: watermarkPos, startIndex: watermarkIndex))
             }
     }
 }
