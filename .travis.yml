@@ -1,0 +1,13 @@
+sudo: required
+dist: trusty
+before_install:
+  - wget -q -O - https://swift.org/keys/all-keys.asc | gpg --import -
+  - wget https://swift.org/builds/development/ubuntu1404/swift-DEVELOPMENT-SNAPSHOT-2016-02-08-a/swift-DEVELOPMENT-SNAPSHOT-2016-02-08-a-ubuntu14.04.tar.gz
+  - tar xzf swift-DEVELOPMENT-SNAPSHOT-2016-02-08-a-ubuntu14.04.tar.gz
+  - export PATH=${PWD}/swift-DEVELOPMENT-SNAPSHOT-2016-02-08-a-ubuntu14.04/usr/bin:"${PATH}"
+script:
+  - git clone https://github.com/apple/swift-package-manager
+  - cd swift-package-manager && git checkout 151a973 && cd ../
+  - swift-package-manager/Utilities/bootstrap
+  - ${PWD}/swift-package-manager/.build/debug/swift-build
+  - ${PWD}/swift-package-manager/.build/debug/swift-test
