@@ -4,6 +4,8 @@ A pure Swift [markdown](http://daringfireball.net/projects/markdown/) implementa
 
 Pull requests are ***very*** welcome, see the vision for where I would like this to go. 
 
+[![Build Status](https://travis-ci.org/SwiftStudies/SmarkDown.svg?branch=master)](https://travis-ci.org/SwiftStudies/SmarkDown)
+
 ## Vision
 
 Version 1.0 is a very minor Swift-ification of Gruber's original Perl implementation. Lots of regular expressions. The initial performance of this implementation yielded about 28s to process the large Markdown Syntax test. This has improved in 1.0.2 to 7s with some pretty simple optimization of what's there. 
