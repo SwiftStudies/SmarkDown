@@ -17,7 +17,7 @@ Once again, I would ***love*** to receive pull requests towards this goal.
 
 ## Building and Running with Swift Package Manager
 
-###Install Swift toolchain if you don't already have it
+### Install Swift toolchain if you don't already have it
 
 If you don't already have the latest Swift tool-chain it, it's not a huge download for the binary (<200Mb), it **doesn't** impact or need anything specific from XCode (unless you want to integrate them), and it comes with an installer. You can [download it here](https://swift.org/download/).
 
