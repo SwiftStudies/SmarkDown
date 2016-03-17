@@ -200,7 +200,7 @@ internal func regexSub(left:String,pattern:String,template:String, multiline:Boo
         return left
     }
     
-    let mutableText = NSMutableString()
+    let mutableText : NSMutableString = ""
     mutableText.setString(left)
     
     regex.replaceMatchesInString(
@@ -210,7 +210,7 @@ internal func regexSub(left:String,pattern:String,template:String, multiline:Boo
         withTemplate: template
     )
     
-    return mutableText as String
+    return mutableText.description 
 }
 
 internal func regexMatches(text:String,pattern:String)->Bool{

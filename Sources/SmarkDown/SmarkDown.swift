@@ -8,6 +8,14 @@
 import Foundation
 import Duration
 
+#if os(Linux)
+    import Glibc
+
+    private func arc4random_uniform(max:UInt32)->UInt32{
+	return UInt32(random()) % (max + 1)
+    }
+#endif
+
 public extension String{
     var markdown : String {
         return SmarkDown().markdown(self)
