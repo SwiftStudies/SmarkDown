@@ -1,10 +1,10 @@
+[![Build Status](https://travis-ci.org/SwiftStudies/SmarkDown.svg?branch=master)](https://travis-ci.org/SwiftStudies/SmarkDown)
+
 # SmarkDown
 
 A pure Swift [markdown](http://daringfireball.net/projects/markdown/) implementation consistent with Gruber's 1.0.1  version. It is released under the BSD license so please feel free to use (at your own risk). 
 
 Pull requests are ***very*** welcome, see the vision for where I would like this to go. 
-
-[![Build Status](https://travis-ci.org/SwiftStudies/SmarkDown.svg?branch=master)](https://travis-ci.org/SwiftStudies/SmarkDown)
 
 ## Vision
 
