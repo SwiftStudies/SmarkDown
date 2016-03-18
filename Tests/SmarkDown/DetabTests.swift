@@ -10,16 +10,6 @@ import XCTest
 
 class DetabTests: XCTestCase {
 
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
     func detab(input:String)->String{
         return SmarkDown().detab(input)
     }
@@ -57,3 +47,14 @@ class DetabTests: XCTestCase {
         XCTAssert(result == expected, "Failed for '\(input.exposedWhiteSpace)':\n'\(expected.exposedWhiteSpace)' but got \n'\(result.exposedWhiteSpace)'")
     }
 }
+
+#if os(Linux)
+	extension DetabTests : XCTestCaseProvider {
+	    var allTests : [(String, () throws -> Void)] {
+        	return [
+            		("testAdvancedMultilineDetab", testAdvancedMultilineDetab),
+            		("testMultilineDetab", testMultilineDetab),
+        		]
+   	    }	
+	}
+#endif

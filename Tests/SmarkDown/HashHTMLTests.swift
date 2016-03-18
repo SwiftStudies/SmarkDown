@@ -10,16 +10,6 @@ import XCTest
 
 class HashHTMLTests: XCTestCase {
 
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
     func hashHTMLBlocks(input:String)->String{
         return SmarkDown().hashHTMLBlocks(input)
     }
@@ -51,3 +41,14 @@ class HashHTMLTests: XCTestCase {
     }
 
 }
+
+#if os(Linux)
+    extension HashHTMLTests : XCTestCaseProvider{
+        var allTests : [(String, () throws -> Void)] {
+	    return [("testBasic",testBasic),
+			("testHR",testHR),
+			("testComments",testComments),
+		]
+	}
+    }
+#endif
