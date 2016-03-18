@@ -6,47 +6,40 @@
 //
 
 import XCTest
+import Foundation
+
 @testable import SmarkDown
 
 class SmarkDownTests: XCTestCase {
     
+    #if !os(Linux)
     var bundle : NSBundle {
         return NSBundle(forClass: self.dynamicType)
     }
+    #endif
     
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
-    
+        
     func doFileTest(fileName:String){
-        let bundle = NSBundle(forClass: self.dynamicType)
+	    
+        var inputFileName  = "./Data/\(fileName).text"
+        var outputFileName = "./Data/\(fileName).html"
 
-        let inputFileName  : String
-        let outputFileName : String
-        
-        if let fromBundle = bundle.pathForResource(fileName, ofType: "text"){
-            inputFileName = fromBundle
-        } else {
-            inputFileName = "./Data/\(fileName).text"
-        }
-
-        if let fromBundle = bundle.pathForResource(fileName, ofType: "html"){
-            outputFileName = fromBundle
-        } else {
-            outputFileName = "./Data/\(fileName).html"
-        }
-        
+		//If we are not on linux see if we are running through XCode and 
+		//need to get at the test data from the bundle	    	    
+	    #if !os(Linux)
+	        let bundle = NSBundle(forClass: self.dynamicType)
+			if let fromBundle = bundle.pathForResource(fileName, ofType: "text"){
+	            inputFileName = fromBundle
+			}
+			
+			if let fromBundle = bundle.pathForResource(fileName, ofType: "html"){
+            	outputFileName = fromBundle
+			}
+  	    #endif        
                 
         do {
-            let input = try NSString(contentsOfFile: inputFileName, encoding: NSUTF8StringEncoding) as String
-            let expectedOutput = try NSString(contentsOfFile: outputFileName, encoding: NSUTF8StringEncoding) as String
+            let input : String = try NSString(contentsOfFile: inputFileName, encoding: NSUTF8StringEncoding).description 
+            let expectedOutput : String = try NSString(contentsOfFile: outputFileName, encoding: NSUTF8StringEncoding).description
             
             let result = input.markdown
                         
@@ -154,11 +147,25 @@ class SmarkDownTests: XCTestCase {
         
     }
     
+    // Measure block not supported on linux yet
+    #if !os(Linux)
     func testOverallPerformance() {
         // This is an example of a performance test case.
         self.measureBlock {
             self.doFileTest("Markdown Documentation - Syntax")
         }
     }
+    #endif
     
 }
+
+#if os(Linux)
+	extension SmarkDownTests : XCTestCaseProvider {
+	    var allTests : [(String, () throws -> Void)] {
+        	return [
+            		("testMarkdownDocumentationSyntax", testMarkdownDocumentationSyntax),
+        		]
+   	    }	
+	}
+#endif
+

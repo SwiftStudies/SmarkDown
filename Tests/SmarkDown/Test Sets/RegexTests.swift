@@ -6,28 +6,19 @@
 //
 
 import XCTest
+import Foundation
 @testable import SmarkDown
 
 class InternalTests: XCTestCase {
-
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
+	    
     func testSubstringWithNSRange(){
         
         func doTest(text:String,range:NSRange,expected:String){
             let result = text.substringWithNSRange(range)
             XCTAssert(result == expected, "Expected '\(expected)' but got '\(result)'")
             
-            let nsStringVersion = text as NSString
-            let nsStringResult = nsStringVersion.substringWithRange(range) as String
+            let nsStringVersion = NSString(string:text)
+            let nsStringResult = String(nsStringVersion.substringWithRange(range))
             XCTAssert(nsStringResult == result, "NSString with NSRange returned \(nsStringResult) which is different to \(result) ")
         }
         
@@ -286,3 +277,14 @@ class InternalTests: XCTestCase {
         XCTAssert(result == expected, "Failed for '\(input.exposedWhiteSpace)':\n'\(expected.exposedWhiteSpace)' but got \n'\(result.exposedWhiteSpace)'")
     }
 }
+
+#if os(Linux)
+	extension InternalTests : XCTestCaseProvider {
+	    var allTests : [(String, () throws -> Void)] {
+        	return [
+            		("testMalformedHr", testMalformedHr),
+            		("testSimpleHeader", testSimpleHeader),
+        		]
+   	    }	
+	}
+#endif
