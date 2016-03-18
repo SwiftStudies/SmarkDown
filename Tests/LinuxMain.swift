@@ -6,7 +6,7 @@ func nothing(){
 	
 }
 
-XCTMain([HashHTMLTests()])
+//XCTMain([HashHTMLTests()])
 
 //XCTMain([
 //	testCase(HashHTMLTests.allTests),
