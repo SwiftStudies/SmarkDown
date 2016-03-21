@@ -178,7 +178,7 @@ public class SmarkDown {
         
         //Do hard-breaks
         
-        text = regexSub(text, pattern: " {2,}\\n", template: "<br\(emptyElementSufix)>")
+        text = regexSub(text, pattern: " {2,}\\n", template: " <br\(emptyElementSufix)\n")
         
         return text
     }

@@ -121,16 +121,31 @@ class InternalTests: XCTestCase {
     }
     
     func testAutoLinks(){
+        
+        var failures = [String:(expected:String,actual:String)]()
+        
         let inputs = [
-            "<http://www.google.com/>" : "<a href=\"http://www.google.com/\">http://www.google.com/</a>",                                     //Auto-link
+            "<http://www.google.com/>" : "<a href=\"http://www.google.com/\">http://www.google.com/</a>", //Auto-link
+            "<http://www.google.com/>  \nNext Line\n" : "<a href=\"http://www.google.com/\">http://www.google.com/</a> <br />\nNext Line",
         ]
         
         for (input,expected) in inputs {
             let result      = input.markdown
             let expected    = "<p>\(expected)</p>\n"
+
+            if result != expected {
+                failures[input] = (expected,result)
+            }
             
-            XCTAssert(result == expected, "Failed for '\(input.exposedWhiteSpace)':\n'\(expected.exposedWhiteSpace)' but got \n'\(result.exposedWhiteSpace)'")
+//            XCTAssert(result == expected, "Failed for '\(input.exposedWhiteSpace)':\n'\(expected.exposedWhiteSpace)' but got \n'\(result.exposedWhiteSpace)'")
         }
+        
+        var resultsSummary = ""
+        for (input,results) in failures {
+            resultsSummary += "Failed for '\(input.exposedWhiteSpace)':\n'\(results.expected.exposedWhiteSpace)' but got \n'\(results.actual.exposedWhiteSpace)'\n"
+        }
+        
+        XCTAssert(failures.count == 0, "Failed for \(failures.count) out of \(inputs.count) cases:\n\(resultsSummary)")
     }
     
     func testReferenceLinkWithTitle(){
